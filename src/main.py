@@ -1,7 +1,13 @@
 import xml.etree.ElementTree as ET
 from docx import Document
+import sys
 
-document = Document('questions.docx')
+inputPath = sys.argv[1]
+outFileName = sys.argv[2]
+outAddress = sys.argv[3]
+startIndex = int(sys.argv[4])
+
+document = Document(inputPath)
 
 lineSequences = [p.text for p in document.paragraphs]
 
@@ -42,12 +48,11 @@ ET.register_namespace('wow',"http://www.example.com/ns/1.0")
 questions = ET.Element('{http://www.example.com/ns/1.0}questions')
 
 i = 0
-questionIndex = 0
+questionIndex = startIndex
 while i < len(lineSequences):
     line = lineSequences[i]
     if line.startswith("@"):
         #Beginning of the question
-        questionIndex += 1
         content = line[1:]
         ansList = []
         i+=1
@@ -60,9 +65,10 @@ while i < len(lineSequences):
                 ansList.append((line,0))
             i+=1
         mapToXMLTree(questionIndex, content, "MC", "0", "", "", "", ansList)
+        questionIndex += 1
     i+=1
 
         
 data = ET.tostring(questions, encoding="UTF-8")
-file = open("test_questions.xml", "w")
+file = open(outAddress + "/" + outFileName, "w")
 file.write(data)
